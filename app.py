@@ -102,6 +102,23 @@ st.markdown("""
         background-color: var(--panel-dark);
         border-right: 1px solid var(--panel-border);
     }
+    section[data-testid="stSidebar"] label,
+    section[data-testid="stSidebar"] label p,
+    section[data-testid="stSidebar"] h1,
+    section[data-testid="stSidebar"] h2,
+    section[data-testid="stSidebar"] h3,
+    section[data-testid="stSidebar"] .stMarkdown p {
+        color: var(--text-light) !important;
+    }
+    section[data-testid="stSidebar"] [data-testid="stFileUploaderDropzoneInstructions"] span,
+    section[data-testid="stSidebar"] [data-testid="stFileUploaderDropzoneInstructions"] small,
+    section[data-testid="stSidebar"] small {
+        color: var(--text-muted) !important;
+    }
+    [data-testid="stFileUploaderDropzone"] {
+        background-color: var(--panel-dark) !important;
+        border: 1px solid var(--panel-border) !important;
+    }
 
     /* Tabs */
     .stTabs [data-baseweb="tab"] {
