@@ -21,14 +21,14 @@ STATUS_LABELS = {
     "no_tax_id": "No Tax ID On File",
 }
 
-# fill colors per status (soft, professional palette)
+# fill colors per status (soft, professional palette — each hue kept visually distinct)
 STATUS_FILLS = {
-    STATUS_LABELS["exact"]: "C6EFCE",             # soft green
-    STATUS_LABELS["mismatch"]: "FFEB9C",          # soft amber
-    STATUS_LABELS["amount_only"]: "DDEBF7",       # soft blue
-    STATUS_LABELS["unmatched_sales"]: "F8CBAD",   # soft orange
+    STATUS_LABELS["exact"]: "C6EFCE",             # green
+    STATUS_LABELS["mismatch"]: "FFEB9C",          # amber/yellow
+    STATUS_LABELS["amount_only"]: "D9D2E9",       # lavender/purple (was too close to white before)
+    STATUS_LABELS["unmatched_sales"]: "F8CBAD",   # orange
     STATUS_LABELS["unmatched_supplier"]: "F8CBAD",
-    STATUS_LABELS["no_tax_id"]: "E7E6E6",         # soft gray
+    STATUS_LABELS["no_tax_id"]: "D9D9D9",         # gray
 }
 
 MATCH_TYPE_TO_STATUS = {
