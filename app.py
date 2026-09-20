@@ -271,12 +271,12 @@ def _load_and_match(sales_bytes, eta_bytes, profile_bytes, tolerance):
 
 
 DISPLAY_COLS_MATCHED = [
-    "invoice_no", "supplier_id", "supplier_company", "voucher_no",
+    "invoice_no", "supplier_id", "display_supplier_name", "service_type", "airline_code", "voucher_no",
     "total_amount", "eta_internal_no", "eta_total", "amount_diff",
     "currency", "taxable_status", "match_type",
 ]
 DISPLAY_COLS_UNMATCHED_SALES = [
-    "invoice_no", "supplier_id", "supplier_company", "voucher_no",
+    "invoice_no", "supplier_id", "supplier_company", "service_type", "airline_code", "voucher_no",
     "total_amount", "currency", "fiscal_code", "taxable_status",
 ]
 DISPLAY_COLS_UNMATCHED_SUPPLIER = [
@@ -284,13 +284,16 @@ DISPLAY_COLS_UNMATCHED_SUPPLIER = [
     "eta_currency", "eta_doc_type",
 ]
 DISPLAY_COLS_NO_TAX_ID = [
-    "invoice_no", "supplier_id", "voucher_no", "total_amount", "currency", "taxable_status",
+    "invoice_no", "supplier_id", "service_type", "airline_code", "voucher_no", "total_amount", "currency", "taxable_status",
 ]
 
 RENAME_FOR_DISPLAY = {
     "invoice_no": "Invoice No.",
     "supplier_id": "Supplier ID",
     "supplier_company": "Supplier Name",
+    "display_supplier_name": "Supplier Name",
+    "service_type": "Service Type",
+    "airline_code": "Airline Code",
     "voucher_no": "Supplier Invoice No.",
     "total_amount": "Sales Amount",
     "eta_internal_no": "Supplier Invoice No. (ETA)",
@@ -327,6 +330,11 @@ if run_button:
     with st.spinner("Running reconciliation..."):
         matched, unmatched_sales, unmatched_supplier, no_tax_id, n_sales, n_eta, n_profile = _load_and_match(
             sales_file.getvalue(), eta_file.getvalue(), profile_file.getvalue(), tolerance
+        )
+    if not matched.empty:
+        matched = matched.copy()
+        matched["display_supplier_name"] = matched["eta_seller_name"].where(
+            matched["eta_seller_name"].notna(), matched["supplier_company"]
         )
 
     st.success(f"Loaded {n_sales} sales lines, {n_eta} ETA invoices, {n_profile} suppliers.")
