@@ -128,6 +128,8 @@ TINA_COL_SUPPLIER_ID = "Supplier ID"
 TINA_COL_TOTAL = "TOTAL"
 TINA_COL_CURRENCY = "Invoice currency"
 TINA_COL_CLIENT_NAME = "Client Name"
+TINA_COL_SERVICE_TYPE = "service type"
+TINA_COL_AIRLINE_CODE = "Airline Code"
 
 PROFILE_COL_SUPPLIER_ID = "Supplier id"
 PROFILE_COL_FISCAL_CODE = "Fiscal code"
@@ -145,6 +147,12 @@ ETA_COL_DOC_TYPE = "نوع المستند"
 # ---------------------------------------------------------------------------
 # Step 1: group TINA sales lines into supplier-level invoice records
 # ---------------------------------------------------------------------------
+def _join_unique(series: pd.Series) -> str:
+    vals = [str(v).strip() for v in series if v is not None and str(v).strip() != "" and str(v).lower() != "nan"]
+    uniq = list(dict.fromkeys(vals))  # preserve order, drop duplicates
+    return "; ".join(uniq) if uniq else None
+
+
 def build_tina_supplier_invoices(tina_df: pd.DataFrame) -> pd.DataFrame:
     """
     Collapse TINA's line-level rows into one row per
@@ -159,15 +167,19 @@ def build_tina_supplier_invoices(tina_df: pd.DataFrame) -> pd.DataFrame:
     # voucher for the same (invoice, supplier) still collapse together
     df["_group_voucher"] = df["_voucher_clean"].fillna("__NO_VOUCHER__")
 
-    grouped = df.groupby(
-        [TINA_COL_INVOICE_NO, TINA_COL_SUPPLIER_ID, "_group_voucher"],
-        dropna=False,
-    ).agg(
+    agg_kwargs = dict(
         total_amount=(TINA_COL_TOTAL, "sum"),
         currency=(TINA_COL_CURRENCY, "first"),
         line_count=(TINA_COL_TOTAL, "size"),
         client_name=(TINA_COL_CLIENT_NAME, "first") if TINA_COL_CLIENT_NAME in df.columns else (TINA_COL_TOTAL, "size"),
-    ).reset_index()
+        service_type=(TINA_COL_SERVICE_TYPE, _join_unique) if TINA_COL_SERVICE_TYPE in df.columns else (TINA_COL_TOTAL, "size"),
+        airline_code=(TINA_COL_AIRLINE_CODE, _join_unique) if TINA_COL_AIRLINE_CODE in df.columns else (TINA_COL_TOTAL, "size"),
+    )
+
+    grouped = df.groupby(
+        [TINA_COL_INVOICE_NO, TINA_COL_SUPPLIER_ID, "_group_voucher"],
+        dropna=False,
+    ).agg(**agg_kwargs).reset_index()
 
     grouped = grouped.rename(columns={
         TINA_COL_INVOICE_NO: "invoice_no",
